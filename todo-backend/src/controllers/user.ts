@@ -1,27 +1,34 @@
 import { Request, Response } from 'express';
-import { registerUser, loginUser } from '../business-logic/user';
-import { RequestHandler } from 'express';
+import UserService from '../business-logic/user';
+import exp from 'constants';
 
-// User registration
-export const register = async (req: Request, res: Response) => {
-  const { name, surName, password } = req.body;
+const userService = new UserService;
 
-  try {
-    const user = await registerUser(name, surName, password);
-    res.status(201).json({ message: 'User registered successfully!' });
-  } catch (err: any) {
-    res.status(500).json({ message: err.message || 'Error registering user' });
-  }
-};
+class UserController{
+  // User registration
+  async register (req: Request, res: Response) {
+    const { name, surName, password } = req.body;
 
-// User login
-export const login: RequestHandler = async (req, res) => {
-  const { name, password } = req.body;
+    try {
+      const user = await userService.registerUser(name, surName, password);
+      res.status(201).json({ message: 'User registered successfully!' });
+    } catch (err: any) {
+      res.status(500).json({ message: err.message || 'Error registering user' });
+    }
+  };
 
-  try {
-    const { token } = await loginUser(name, password);
-    res.json({ token });
-  } catch (err: any) {
-    res.status(400).json({ message: err.message || 'Invalid credentials' });
-  }
-};
+  // User login
+  async login(req: Request, res: Response){
+    const { name, password } = req.body;
+
+    try {
+      const { token } = await userService.loginUser(name, password);
+      res.json({ token });
+    } catch (err: any) {
+      res.status(400).json({ message: err.message || 'Invalid credentials' });
+    }
+  };  
+}
+
+export default UserController;
+
